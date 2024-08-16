@@ -115,12 +115,40 @@ public class AIUnitBehaviour : MonoBehaviour, IAttackMoveCommandable
 
         if (DisTotarget >= attackRange)
         {
+            turretControl.SetDesiredAngularVelocity(0);
+            
             launcher.CeaseTriggerPull();
 
             Follow(target);
         }
         else if (DisTotarget < attackRange)
         {
+            Vector3 toTarget = target.transform.position - turretControl.transform.position;
+            float AngleTotarget = Vector3.SignedAngle(turretControl.transform.forward, toTarget, Vector3.up);
+            float angleError = Mathf.Abs(AngleTotarget);
+
+            if (angleError < 10)
+            {
+                turretControl.SetDesiredAngularVelocity(AngleTotarget);
+            }
+            else if (AngleTotarget < 0)
+            {
+                turretControl.SetDesiredAngularVelocity(-600);
+            }
+            else if (AngleTotarget > 0)
+            {
+                turretControl.SetDesiredAngularVelocity(600);
+            }
+
+            if (CanSee(target, attackRange))
+            {
+                launcher.BeginTriggerPull();
+            }
+            else
+            {
+                launcher.CeaseTriggerPull();
+            }
+
             launcher.BeginTriggerPull();
         }
         
@@ -135,6 +163,23 @@ public class AIUnitBehaviour : MonoBehaviour, IAttackMoveCommandable
         {
             Stop();
 
+            Vector3 toTarget = target.transform.position - turretControl.transform.position;
+            float AngleTotarget = Vector3.SignedAngle(turretControl.transform.forward, toTarget, Vector3.up);
+            float angleError = Mathf.Abs(AngleTotarget);
+
+            if (angleError < 10)
+            {
+                turretControl.SetDesiredAngularVelocity(AngleTotarget);
+            }
+            else if (AngleTotarget < 0)
+            {
+                turretControl.SetDesiredAngularVelocity(-600);
+            }
+            else if (AngleTotarget > 0)
+            {
+                turretControl.SetDesiredAngularVelocity(600);
+            }
+
             if (CanSee(target, attackRange))
             {
                 launcher.BeginTriggerPull();
@@ -148,6 +193,8 @@ public class AIUnitBehaviour : MonoBehaviour, IAttackMoveCommandable
         }
         else
         {
+            turretControl.SetDesiredAngularVelocity(0);
+
             launcher.CeaseTriggerPull();
 
             MoveTo(moveLocation, false);
@@ -198,23 +245,6 @@ public class AIUnitBehaviour : MonoBehaviour, IAttackMoveCommandable
                     return true;
                 }
             }
-        }
-
-        Vector3 toTarget = unit.transform.position - turretControl.transform.position;
-        float AngleTotarget = Vector3.SignedAngle(turretControl.transform.forward, toTarget, Vector3.up);
-        float angleError = Mathf.Abs(AngleTotarget);
-
-        if (angleError < 10)
-        {
-            turretControl.SetDesiredAngularVelocity(AngleTotarget);
-        }
-        else if (AngleTotarget < 0)
-        {
-            turretControl.SetDesiredAngularVelocity(-600);
-        }
-        else if (AngleTotarget > 0)
-        {
-            turretControl.SetDesiredAngularVelocity(600);
         }
 
         return false;
